@@ -30,6 +30,12 @@ public class RpnPrinter
         return null;
     }
 
+    @Override
+    public String visitTernaryExpr(Expr.Ternary expr)
+    {
+        return null;
+    }
+
     public static void main(String[] args)
     {
         Expr expr = new Expr.Binary(
