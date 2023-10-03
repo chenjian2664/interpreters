@@ -6,7 +6,47 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Character.isDigit;
-import static org.example.lox.TokenType.*;
+import static org.example.lox.TokenType.AND;
+import static org.example.lox.TokenType.BANG;
+import static org.example.lox.TokenType.BANG_EQUAL;
+import static org.example.lox.TokenType.CLASS;
+import static org.example.lox.TokenType.COLON;
+import static org.example.lox.TokenType.COMMA;
+import static org.example.lox.TokenType.DOT;
+import static org.example.lox.TokenType.ELSE;
+import static org.example.lox.TokenType.EOF;
+import static org.example.lox.TokenType.EQUAL;
+import static org.example.lox.TokenType.EQUAL_EQUAL;
+import static org.example.lox.TokenType.FALSE;
+import static org.example.lox.TokenType.FOR;
+import static org.example.lox.TokenType.FUN;
+import static org.example.lox.TokenType.GREATER;
+import static org.example.lox.TokenType.GREATER_EQUAL;
+import static org.example.lox.TokenType.IDENTIFIER;
+import static org.example.lox.TokenType.IF;
+import static org.example.lox.TokenType.LEFT_BRACE;
+import static org.example.lox.TokenType.LEFT_PAREN;
+import static org.example.lox.TokenType.LESS;
+import static org.example.lox.TokenType.LESS_EQUAL;
+import static org.example.lox.TokenType.MINUS;
+import static org.example.lox.TokenType.NIL;
+import static org.example.lox.TokenType.NUMBER;
+import static org.example.lox.TokenType.OR;
+import static org.example.lox.TokenType.PLUS;
+import static org.example.lox.TokenType.PRINT;
+import static org.example.lox.TokenType.QUESTION_MARK;
+import static org.example.lox.TokenType.RETURN;
+import static org.example.lox.TokenType.RIGHT_BRACE;
+import static org.example.lox.TokenType.RIGHT_PAREN;
+import static org.example.lox.TokenType.SEMICOLON;
+import static org.example.lox.TokenType.SLASH;
+import static org.example.lox.TokenType.STAR;
+import static org.example.lox.TokenType.STRING;
+import static org.example.lox.TokenType.SUPER;
+import static org.example.lox.TokenType.THIS;
+import static org.example.lox.TokenType.TRUE;
+import static org.example.lox.TokenType.VAR;
+import static org.example.lox.TokenType.WHILE;
 
 public class Scanner
 {
@@ -20,22 +60,22 @@ public class Scanner
 
     static {
         keywords = new HashMap<>();
-        keywords.put("and",    AND);
-        keywords.put("class",  CLASS);
-        keywords.put("else",   ELSE);
-        keywords.put("false",  FALSE);
-        keywords.put("for",    FOR);
-        keywords.put("fun",    FUN);
-        keywords.put("if",     IF);
-        keywords.put("nil",    NIL);
-        keywords.put("or",     OR);
-        keywords.put("print",  PRINT);
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
         keywords.put("return", RETURN);
-        keywords.put("super",  SUPER);
-        keywords.put("this",   THIS);
-        keywords.put("true",   TRUE);
-        keywords.put("var",    VAR);
-        keywords.put("while",  WHILE);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
     }
 
     Scanner(String source)
@@ -153,7 +193,9 @@ public class Scanner
 
         String text = source.substring(start, current);
         TokenType type = keywords.get(text);
-        if (type == null) type = IDENTIFIER;
+        if (type == null) {
+            type = IDENTIFIER;
+        }
         addToken(type);
 //        addToken(IDENTIFIER);
     }

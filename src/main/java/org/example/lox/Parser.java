@@ -88,10 +88,12 @@ public class Parser
         return expr;
     }
 
-    Expr parse() {
+    Expr parse()
+    {
         try {
             return comma();
-        } catch (ParseError error) {
+        }
+        catch (ParseError error) {
             return null;
         }
     }
