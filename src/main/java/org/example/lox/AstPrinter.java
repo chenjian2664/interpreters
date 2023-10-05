@@ -9,6 +9,12 @@ public class AstPrinter
     }
 
     @Override
+    public String visitAssignExpr(Expr.Assign expr)
+    {
+        return parenthesize(expr.name.lexeme, expr.value);
+    }
+
+    @Override
     public String visitBinaryExpr(Expr.Binary expr)
     {
         return parenthesize(expr.operator.lexeme,

@@ -8,6 +8,14 @@ public class Interpreter
     private final Environment environment = new Environment();
 
     @Override
+    public Object visitAssignExpr(Expr.Assign expr)
+    {
+        Object value = evaluate(expr.value);
+        environment.assign(expr.name, expr.value);
+        return value;
+    }
+
+    @Override
     public Object visitBinaryExpr(Expr.Binary expr)
     {
         Object left = evaluate(expr.left);

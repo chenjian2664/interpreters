@@ -47,7 +47,9 @@ printStmt      → "print" expression ";" ;
 Added: (comma, ternary)
 comma          → expression ("," expression)+;
 ============
-expression     → equality | ternaryExpression;
+expression    →  assignment;
+assignment   →   IDENTIFIER "=" assignment | equality | ternaryExpression;
+//expression     → equality | ternaryExpression;
 ternaryExpression → comparison "?" expression ":" expression;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -83,26 +85,31 @@ public class Parser
         return expr;
     }
 
+//    private Expr expression()
+//    {
+//        Expr expr = comparison();
+//
+//        while (match(BANG_EQUAL, EQUAL_EQUAL)) {
+//            Token operator = previous();
+//            Expr right = comparison();
+//            expr = new Expr.Binary(expr, operator, right);
+//        }
+//
+//        if (match(QUESTION_MARK)) {
+//            Token question = previous();
+//            Expr left = expression();
+//            consume(TokenType.COLON, "Ternary format error");
+//            Token colon = previous();
+//            Expr right = expression();
+//            return new Expr.Ternary(expr, question, left, colon, right);
+//        }
+//
+//        return expr;
+//    }
+
     private Expr expression()
     {
-        Expr expr = comparison();
-
-        while (match(BANG_EQUAL, EQUAL_EQUAL)) {
-            Token operator = previous();
-            Expr right = comparison();
-            expr = new Expr.Binary(expr, operator, right);
-        }
-
-        if (match(QUESTION_MARK)) {
-            Token question = previous();
-            Expr left = expression();
-            consume(TokenType.COLON, "Ternary format error");
-            Token colon = previous();
-            Expr right = expression();
-            return new Expr.Ternary(expr, question, left, colon, right);
-        }
-
-        return expr;
+        return assignment();
     }
 
     List<Stmt> parse()
@@ -169,6 +176,25 @@ public class Parser
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
+    }
+
+    private Expr assignment()
+    {
+        Expr expr = equality();
+
+        if (match(EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private Expr equality()
@@ -319,7 +345,4 @@ public class Parser
     {
         return tokens.get(current - 1);
     }
-
-
-
 }
