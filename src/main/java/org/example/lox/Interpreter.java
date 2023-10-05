@@ -1,7 +1,9 @@
 package org.example.lox;
 
+import java.util.List;
+
 public class Interpreter
-        implements Expr.Visitor<Object>
+        implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
     @Override
     public Object visitBinaryExpr(Expr.Binary expr)
@@ -41,7 +43,7 @@ public class Interpreter
                     return (double) left + (double) right;
                 }
                 if (left instanceof String || right instanceof String) {
-                    return left.toString() + right.toString();
+                    return stringify(left) + stringify(right);
                 }
             }
             case SLASH -> {
@@ -135,6 +137,12 @@ public class Interpreter
         return evaluate ? evaluate(expr.left) : evaluate(expr.right);
     }
 
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr)
+    {
+        return null;
+    }
+
     private Object evaluate(Expr expr)
     {
         return expr.accept(this);
@@ -149,6 +157,20 @@ public class Interpreter
         catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+
+    void interpret(List<Stmt> statements) {
+        try {
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } catch (RuntimeError error) {
+            Lox.runtimeError(error);
+        }
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
     }
 
     private String stringify(Object object)
@@ -166,6 +188,27 @@ public class Interpreter
         }
 
         return object.toString();
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt)
+    {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt)
+    {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt)
+    {
+        return null;
     }
 
     static class RuntimeError

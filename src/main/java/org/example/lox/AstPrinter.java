@@ -42,6 +42,12 @@ public class AstPrinter
         return parenthesize(expr.question.lexeme, expr.compare, expr.left, expr.right);
     }
 
+    @Override
+    public String visitVariableExpr(Expr.Variable expr)
+    {
+        return null;
+    }
+
     private String parenthesize(String name, Expr... exprs)
     {
         StringBuilder builder = new StringBuilder();

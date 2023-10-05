@@ -20,7 +20,14 @@ public class GenerateAst
                 "Grouping : Expr expression",
                 "Literal  : Object value",
                 "Unary    : Token operator, Expr right",
-                "Ternary  : Expr compare, Token question, Expr left, Token colon, Expr right"
+                "Ternary  : Expr compare, Token question, Expr left, Token colon, Expr right",
+                "Variable : Token name"
+        ));
+
+        defineAst(outputDir, "Stmt", Arrays.asList(
+                "Expression : Expr expression",
+                "Print      : Expr expression",
+                "Var        : Token name, Expr initializer"
         ));
     }
 
@@ -64,7 +71,7 @@ public class GenerateAst
         }
 
         writer.println();
-        writer.println("    default R visit(Expr expr) {");
+        writer.println("    default R visit(" + baseName + " expr) {");
         writer.println("        return expr.accept(this);");
         writer.println("    }");
 

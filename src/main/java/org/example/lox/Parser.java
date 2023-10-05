@@ -1,15 +1,18 @@
 package org.example.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.example.lox.TokenType.BANG;
 import static org.example.lox.TokenType.BANG_EQUAL;
 import static org.example.lox.TokenType.COMMA;
 import static org.example.lox.TokenType.EOF;
+import static org.example.lox.TokenType.EQUAL;
 import static org.example.lox.TokenType.EQUAL_EQUAL;
 import static org.example.lox.TokenType.FALSE;
 import static org.example.lox.TokenType.GREATER;
 import static org.example.lox.TokenType.GREATER_EQUAL;
+import static org.example.lox.TokenType.IDENTIFIER;
 import static org.example.lox.TokenType.LEFT_PAREN;
 import static org.example.lox.TokenType.LESS;
 import static org.example.lox.TokenType.LESS_EQUAL;
@@ -17,15 +20,29 @@ import static org.example.lox.TokenType.MINUS;
 import static org.example.lox.TokenType.NIL;
 import static org.example.lox.TokenType.NUMBER;
 import static org.example.lox.TokenType.PLUS;
+import static org.example.lox.TokenType.PRINT;
 import static org.example.lox.TokenType.QUESTION_MARK;
 import static org.example.lox.TokenType.RIGHT_PAREN;
+import static org.example.lox.TokenType.SEMICOLON;
 import static org.example.lox.TokenType.SLASH;
 import static org.example.lox.TokenType.STAR;
 import static org.example.lox.TokenType.STRING;
 import static org.example.lox.TokenType.TRUE;
+import static org.example.lox.TokenType.VAR;
 
 /*
 Grammar:
+============
+Added: stmt
+program        → statement* EOF ;
+declaration    → varDecl
+               | statement ;
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+statement      → exprStmt
+               | printStmt ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
 ============
 Added: (comma, ternary)
 comma          → expression ("," expression)+;
@@ -38,8 +55,8 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
                | primary ;
-primary        → NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" ;
+primary        → "true" | "false" | "nil"
+               | "(" expression ")" | IDENTIFIER;
 */
 
 public class Parser
@@ -88,14 +105,70 @@ public class Parser
         return expr;
     }
 
-    Expr parse()
+    List<Stmt> parse()
     {
         try {
-            return comma();
+            List<Stmt> statements = new ArrayList<>();
+            while (!isAtEnd()) {
+                statements.add(declaration());
+            }
+
+            return statements;
+        }
+        catch (ParseError parseError) {
+            Lox.error(1, parseError.toString());
+        }
+        return null;
+    }
+
+    private Stmt declaration()
+    {
+        try {
+            if (match(VAR)) {
+                return varDeclaration();
+            }
+            return statement();
         }
         catch (ParseError error) {
-            return null;
+//            sychronize();
         }
+        return null;
+    }
+
+    private Stmt varDeclaration()
+    {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expr initializer = null;
+        if (match(EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
+    }
+
+    private Stmt statement()
+    {
+        if (match(PRINT)) {
+            return printStatement();
+        }
+
+        return expressionStatement();
+    }
+
+    private Stmt printStatement()
+    {
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt expressionStatement()
+    {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
     }
 
     private Expr equality()
@@ -177,6 +250,10 @@ public class Parser
             return new Expr.Literal(previous().literal);
         }
 
+        if (match(IDENTIFIER)) {
+            return new Expr.Variable(previous());
+        }
+
         if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
@@ -242,4 +319,7 @@ public class Parser
     {
         return tokens.get(current - 1);
     }
+
+
+
 }

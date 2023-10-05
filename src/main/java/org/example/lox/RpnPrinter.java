@@ -36,6 +36,12 @@ public class RpnPrinter
         return null;
     }
 
+    @Override
+    public String visitVariableExpr(Expr.Variable expr)
+    {
+        return null;
+    }
+
     public static void main(String[] args)
     {
         Expr expr = new Expr.Binary(
