@@ -34,6 +34,7 @@ import static org.example.lox.TokenType.STAR;
 import static org.example.lox.TokenType.STRING;
 import static org.example.lox.TokenType.TRUE;
 import static org.example.lox.TokenType.VAR;
+import static org.example.lox.TokenType.WHILE;
 
 /*
 Grammar:
@@ -44,9 +45,11 @@ declaration    → varDecl
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 statement      → exprStmt
                | ifStmt
+               | whileStmt
                | printStmt
                | block;
-ifStmt         → "if" "(" expression ")" statement
+whileStmt      → "while" "(" expression ")" statement;
+ifStmt         → "if" "(" expression ")" statement;
                 ("else" statement)?;
 block          →  "{" declaration* "}";
 exprStmt       → expression ";" ;
@@ -181,7 +184,21 @@ public class Parser
             return new Stmt.Block(block());
         }
 
+        if (match(WHILE)) {
+            return whileStatement();
+        }
+
         return expressionStatement();
+    }
+
+    private Stmt whileStatement()
+    {
+        consume(LEFT_PAREN, "Expect '(' after 'while'");
+        Expr condition = expression();
+        consume(RIGHT_BRACE, "Expect ')' after while condition");
+
+        Stmt body = statement();
+        return new Stmt.While(condition, body);
     }
 
     private Stmt ifStatement()
