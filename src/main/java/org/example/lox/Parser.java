@@ -6,6 +6,7 @@ import java.util.List;
 import static org.example.lox.TokenType.BANG;
 import static org.example.lox.TokenType.BANG_EQUAL;
 import static org.example.lox.TokenType.COMMA;
+import static org.example.lox.TokenType.ELSE;
 import static org.example.lox.TokenType.EOF;
 import static org.example.lox.TokenType.EQUAL;
 import static org.example.lox.TokenType.EQUAL_EQUAL;
@@ -13,6 +14,7 @@ import static org.example.lox.TokenType.FALSE;
 import static org.example.lox.TokenType.GREATER;
 import static org.example.lox.TokenType.GREATER_EQUAL;
 import static org.example.lox.TokenType.IDENTIFIER;
+import static org.example.lox.TokenType.IF;
 import static org.example.lox.TokenType.LEFT_BRACE;
 import static org.example.lox.TokenType.LEFT_PAREN;
 import static org.example.lox.TokenType.LESS;
@@ -41,8 +43,11 @@ declaration    → varDecl
 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 statement      → exprStmt
+               | ifStmt
                | printStmt
                | block;
+ifStmt         → "if" "(" expression ")" statement
+                ("else" statement)?;
 ============
 Added: block
 block         →  "{" declaration* "}";
@@ -163,6 +168,10 @@ public class Parser
 
     private Stmt statement()
     {
+        if (match(IF)) {
+            return ifStatement();
+        }
+
         if (match(PRINT)) {
             return printStatement();
         }
@@ -172,6 +181,21 @@ public class Parser
         }
 
         return expressionStatement();
+    }
+
+    private Stmt ifStatement()
+    {
+        consume(LEFT_PAREN, "Expect '(' after 'if'");
+        Expr condition = expression();
+        consume(RIGHT_BRACE, "Expect ')' after if condition");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     private List<Stmt> block()

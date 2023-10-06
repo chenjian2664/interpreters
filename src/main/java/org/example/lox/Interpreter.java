@@ -204,6 +204,18 @@ public class Interpreter
     }
 
     @Override
+    public Void visitIfStmt(Stmt.If stmt)
+    {
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        }
+        else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitBlockStmt(Stmt.Block stmt)
     {
         executeBlock(stmt.statements, new Environment(environment));
