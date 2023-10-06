@@ -13,6 +13,7 @@ import static org.example.lox.TokenType.FALSE;
 import static org.example.lox.TokenType.GREATER;
 import static org.example.lox.TokenType.GREATER_EQUAL;
 import static org.example.lox.TokenType.IDENTIFIER;
+import static org.example.lox.TokenType.LEFT_BRACE;
 import static org.example.lox.TokenType.LEFT_PAREN;
 import static org.example.lox.TokenType.LESS;
 import static org.example.lox.TokenType.LESS_EQUAL;
@@ -21,7 +22,7 @@ import static org.example.lox.TokenType.NIL;
 import static org.example.lox.TokenType.NUMBER;
 import static org.example.lox.TokenType.PLUS;
 import static org.example.lox.TokenType.PRINT;
-import static org.example.lox.TokenType.QUESTION_MARK;
+import static org.example.lox.TokenType.RIGHT_BRACE;
 import static org.example.lox.TokenType.RIGHT_PAREN;
 import static org.example.lox.TokenType.SEMICOLON;
 import static org.example.lox.TokenType.SLASH;
@@ -40,7 +41,12 @@ declaration    → varDecl
 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 statement      → exprStmt
-               | printStmt ;
+               | printStmt
+               | block;
+============
+Added: block
+block         →  "{" declaration* "}";
+============
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 ============
@@ -161,7 +167,23 @@ public class Parser
             return printStatement();
         }
 
+        if (match(LEFT_BRACE)) {
+            return new Stmt.Block(block());
+        }
+
         return expressionStatement();
+    }
+
+    private List<Stmt> block()
+    {
+        List<Stmt> statements = new ArrayList<>();
+
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
     private Stmt printStatement()

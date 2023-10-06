@@ -5,7 +5,7 @@ import java.util.List;
 public class Interpreter
         implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
-    private final Environment environment = new Environment();
+    private Environment environment = new Environment();
 
     @Override
     public Object visitAssignExpr(Expr.Assign expr)
@@ -58,7 +58,7 @@ public class Interpreter
             }
             case SLASH -> {
                 checkNumberOperands(expr.operator, left, right);
-                if ((double)right == 0) {
+                if ((double) right == 0) {
                     throw new RuntimeError(expr.operator, "Divided by the /0");
                 }
                 return (double) left / (double) right;
@@ -169,17 +169,20 @@ public class Interpreter
         }
     }
 
-    void interpret(List<Stmt> statements) {
+    void interpret(List<Stmt> statements)
+    {
         try {
             for (Stmt statement : statements) {
                 execute(statement);
             }
-        } catch (RuntimeError error) {
+        }
+        catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
     }
 
-    private void execute(Stmt stmt) {
+    private void execute(Stmt stmt)
+    {
         stmt.accept(this);
     }
 
@@ -201,6 +204,28 @@ public class Interpreter
     }
 
     @Override
+    public Void visitBlockStmt(Stmt.Block stmt)
+    {
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+
+    void executeBlock(List<Stmt> statements, Environment environment)
+    {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        }
+        finally {
+            this.environment = previous;
+        }
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt)
     {
         evaluate(stmt.expression);
@@ -216,7 +241,8 @@ public class Interpreter
     }
 
     @Override
-    public Void visitVarStmt(Stmt.Var stmt) {
+    public Void visitVarStmt(Stmt.Var stmt)
+    {
         Object value = null;
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
