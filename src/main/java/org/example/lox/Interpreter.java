@@ -114,6 +114,24 @@ public class Interpreter
     }
 
     @Override
+    public Object visitLogicalExpr(Expr.Logical expr)
+    {
+        Object left = evaluate(expr);
+
+        if (expr.operator.type == TokenType.OR) {
+            if (isTruthy(left)) {
+                return left;
+            }
+        }
+        else {
+            if (!isTruthy(left)) {
+                return left;
+            }
+        }
+        return evaluate(expr);
+    }
+
+    @Override
     public Object visitUnaryExpr(Expr.Unary expr)
     {
         Object right = evaluate(expr.right);

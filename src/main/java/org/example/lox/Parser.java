@@ -3,6 +3,7 @@ package org.example.lox;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.lox.TokenType.AND;
 import static org.example.lox.TokenType.BANG;
 import static org.example.lox.TokenType.BANG_EQUAL;
 import static org.example.lox.TokenType.COMMA;
@@ -22,6 +23,7 @@ import static org.example.lox.TokenType.LESS_EQUAL;
 import static org.example.lox.TokenType.MINUS;
 import static org.example.lox.TokenType.NIL;
 import static org.example.lox.TokenType.NUMBER;
+import static org.example.lox.TokenType.OR;
 import static org.example.lox.TokenType.PLUS;
 import static org.example.lox.TokenType.PRINT;
 import static org.example.lox.TokenType.RIGHT_BRACE;
@@ -36,11 +38,9 @@ import static org.example.lox.TokenType.VAR;
 /*
 Grammar:
 ============
-Added: stmt
 program        → statement* EOF ;
 declaration    → varDecl
                | statement ;
-
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 statement      → exprStmt
                | ifStmt
@@ -48,28 +48,29 @@ statement      → exprStmt
                | block;
 ifStmt         → "if" "(" expression ")" statement
                 ("else" statement)?;
-============
-Added: block
-block         →  "{" declaration* "}";
-============
+block          →  "{" declaration* "}";
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
-============
-Added: (comma, ternary)
 comma          → expression ("," expression)+;
-============
-expression    →  assignment;
-assignment   →   IDENTIFIER "=" assignment | equality | ternaryExpression;
-//expression     → equality | ternaryExpression;
+expression     → assignment;
+assignment     → IDENTIFIER "=" assignment
+                    | equality
+                    | ternaryExpression
+                    | logicalOr;
+logicalOr      → logicalAnd ("or" logicalAnd)*;
+logicalAnd     → equality ("and" equality)*;
 ternaryExpression → comparison "?" expression ":" expression;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
-               | primary ;
-primary        → "true" | "false" | "nil"
-               | "(" expression ")" | IDENTIFIER;
+                | primary ;
+primary        → "true"
+                   | "false"
+                   | "nil"
+                   | "(" expression ")"
+                   | IDENTIFIER;
 */
 
 public class Parser
@@ -226,7 +227,7 @@ public class Parser
 
     private Expr assignment()
     {
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(EQUAL)) {
             Token equals = previous();
@@ -237,9 +238,33 @@ public class Parser
                 return new Expr.Assign(name, value);
             }
 
-            error(equals, "Invalid assignment target.");
+            throw error(equals, "Invalid assignment target.");
         }
 
+        return expr;
+    }
+
+    private Expr or()
+    {
+        Expr expr = and();
+
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr and()
+    {
+        Expr expr = equality();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
         return expr;
     }
 
