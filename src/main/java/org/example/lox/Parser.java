@@ -1,6 +1,7 @@
 package org.example.lox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.example.lox.TokenType.AND;
@@ -12,6 +13,7 @@ import static org.example.lox.TokenType.EOF;
 import static org.example.lox.TokenType.EQUAL;
 import static org.example.lox.TokenType.EQUAL_EQUAL;
 import static org.example.lox.TokenType.FALSE;
+import static org.example.lox.TokenType.FOR;
 import static org.example.lox.TokenType.GREATER;
 import static org.example.lox.TokenType.GREATER_EQUAL;
 import static org.example.lox.TokenType.IDENTIFIER;
@@ -188,7 +190,52 @@ public class Parser
             return whileStatement();
         }
 
+        if (match(FOR)) {
+            return forStatement();
+        }
+
         return expressionStatement();
+    }
+
+    private Stmt forStatement()
+    {
+        consume(LEFT_PAREN, "Expect '(' after 'for'");
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null;
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition = null;
+        if (!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expected ';' after for loop condition");
+
+        Expr increment = null;
+        if (!check(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expected ')' after for loop increment");
+
+        Stmt body = statement();
+
+        if (condition == null) {
+            condition = new Expr.Literal(true);
+        }
+
+        if (increment != null) {
+            body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+        }
+        body = new Stmt.While(condition, body);
+        if (initializer != null) {
+            body = new Stmt.Block(Arrays.asList(initializer, body));
+        }
+
+        return body;
     }
 
     private Stmt whileStatement()
