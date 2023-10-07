@@ -29,6 +29,7 @@ import static org.example.lox.TokenType.NUMBER;
 import static org.example.lox.TokenType.OR;
 import static org.example.lox.TokenType.PLUS;
 import static org.example.lox.TokenType.PRINT;
+import static org.example.lox.TokenType.RETURN;
 import static org.example.lox.TokenType.RIGHT_BRACE;
 import static org.example.lox.TokenType.RIGHT_PAREN;
 import static org.example.lox.TokenType.SEMICOLON;
@@ -53,7 +54,9 @@ statement      → exprStmt
                | ifStmt
                | whileStmt
                | printStmt
+               | returnStmt
                | block;
+returnStmt     → "return" expression? ";";
 whileStmt      → "while" "(" expression ")" statement;
 ifStmt         → "if" "(" expression ")" statement;
                 ("else" statement)?;
@@ -182,7 +185,8 @@ public class Parser
                 }
 
                 parameters.add(consume(IDENTIFIER, "Expect parameter name."));
-            } while (match(COMMA));
+            }
+            while (match(COMMA));
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
@@ -226,7 +230,23 @@ public class Parser
             return forStatement();
         }
 
+        if (match(RETURN)) {
+            return returnStatement();
+        }
+
         return expressionStatement();
+    }
+
+    private Stmt returnStatement()
+    {
+        Token keyword = previous();
+        Expr value = null;
+        if (!check(SEMICOLON)) {
+            value = expression();
+        }
+
+        consume(SEMICOLON, "Expect ';' after return value.");
+        return new Stmt.Return(keyword, value);
     }
 
     private Stmt forStatement()
