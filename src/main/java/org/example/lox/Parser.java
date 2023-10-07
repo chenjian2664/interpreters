@@ -14,6 +14,7 @@ import static org.example.lox.TokenType.EQUAL;
 import static org.example.lox.TokenType.EQUAL_EQUAL;
 import static org.example.lox.TokenType.FALSE;
 import static org.example.lox.TokenType.FOR;
+import static org.example.lox.TokenType.FUN;
 import static org.example.lox.TokenType.GREATER;
 import static org.example.lox.TokenType.GREATER_EQUAL;
 import static org.example.lox.TokenType.IDENTIFIER;
@@ -42,8 +43,11 @@ import static org.example.lox.TokenType.WHILE;
 Grammar:
 ============
 program        → statement* EOF ;
-declaration    → varDecl
+declaration    → funDecl
+               | varDecl
                | statement ;
+funDecl        → "fun" function;
+function       → IDENTIFIER "(" parameters? ")" block;
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 statement      → exprStmt
                | ifStmt
@@ -73,6 +77,7 @@ unary          → ( "!" | "-" ) unary
                 | primary ;
 call           → primary ("(" arguments? ")")*;
 arguments      → expression ( "," expression)*;
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 primary        → "true"
                    | "false"
                    | "nil"
@@ -150,6 +155,9 @@ public class Parser
     private Stmt declaration()
     {
         try {
+            if (match(FUN)) {
+                return function("function");
+            }
             if (match(VAR)) {
                 return varDeclaration();
             }
@@ -159,6 +167,28 @@ public class Parser
 //            sychronize();
         }
         return null;
+    }
+
+    private Stmt.Function function(String kind)
+    {
+        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<Token> parameters = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Stmt> body = block();
+        return new Stmt.Function(name, parameters, body);
     }
 
     private Stmt varDeclaration()
@@ -420,8 +450,7 @@ public class Parser
         List<Expr> arguments = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {
-                if (arguments.size() >= 255)
-                {
+                if (arguments.size() >= 255) {
                     throw error(peek(), "Can't have more than 255 arguments.");
                 }
                 arguments.add(expression());
