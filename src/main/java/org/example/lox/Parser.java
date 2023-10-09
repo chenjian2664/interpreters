@@ -7,6 +7,7 @@ import java.util.List;
 import static org.example.lox.TokenType.AND;
 import static org.example.lox.TokenType.BANG;
 import static org.example.lox.TokenType.BANG_EQUAL;
+import static org.example.lox.TokenType.CLASS;
 import static org.example.lox.TokenType.COMMA;
 import static org.example.lox.TokenType.ELSE;
 import static org.example.lox.TokenType.EOF;
@@ -44,9 +45,11 @@ import static org.example.lox.TokenType.WHILE;
 Grammar:
 ============
 program        → statement* EOF ;
-declaration    → funDecl
+declaration    → classDecl
+               | funDecl
                | varDecl
                | statement ;
+classDecl      → "class" IDENTIFIER "{" function* "}";
 funDecl        → "fun" function;
 function       → IDENTIFIER "(" parameters? ")" block;
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
@@ -158,6 +161,9 @@ public class Parser
     private Stmt declaration()
     {
         try {
+            if (match(CLASS)) {
+                return classDeclaration();
+            }
             if (match(FUN)) {
                 return function("function");
             }
@@ -170,6 +176,20 @@ public class Parser
 //            sychronize();
         }
         return null;
+    }
+
+    private Stmt classDeclaration()
+    {
+        Token name = consume(IDENTIFIER, "Expect class name");
+        consume(LEFT_BRACE, "Expect '{' before class body");
+
+        List<Stmt.Function> methods = new ArrayList<>();
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function("method"));
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after class body.");
+        return new Stmt.Class(name, methods);
     }
 
     private Stmt.Function function(String kind)
