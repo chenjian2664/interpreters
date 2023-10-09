@@ -37,7 +37,8 @@ public class Interpreter
         Integer distance = locals.get(expr);
         if (distance != null) {
             environment.assignAt(distance, expr.name, value);
-        } else {
+        }
+        else {
             globals.assign(expr.name, value);
         }
         return value;
@@ -232,7 +233,6 @@ public class Interpreter
         }
     }
 
-
     private Object evaluate(Expr expr)
     {
         return expr.accept(this);
@@ -308,6 +308,15 @@ public class Interpreter
     public Void visitBlockStmt(Stmt.Block stmt)
     {
         executeBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt)
+    {
+        environment.define(stmt.name.lexeme, null);
+        LoxClass klass = new LoxClass(stmt.name.lexeme);
+        environment.assign(stmt.name, klass);
         return null;
     }
 

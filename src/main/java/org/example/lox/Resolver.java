@@ -107,6 +107,14 @@ public class Resolver
     }
 
     @Override
+    public Void visitClassStmt(Stmt.Class stmt)
+    {
+        declare(stmt.name);
+        define(stmt.name);
+        return null;
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt)
     {
         resolve(stmt.expression);
