@@ -9,6 +9,7 @@ import static org.example.lox.TokenType.BANG;
 import static org.example.lox.TokenType.BANG_EQUAL;
 import static org.example.lox.TokenType.CLASS;
 import static org.example.lox.TokenType.COMMA;
+import static org.example.lox.TokenType.DOT;
 import static org.example.lox.TokenType.ELSE;
 import static org.example.lox.TokenType.EOF;
 import static org.example.lox.TokenType.EQUAL;
@@ -68,7 +69,7 @@ exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 comma          → expression ("," expression)+;
 expression     → assignment;
-assignment     → IDENTIFIER "=" assignment
+assignment     → (call ".")? IDENTIFIER "=" assignment
                     | equality
                     | ternaryExpression
                     | logicalOr;
@@ -81,7 +82,7 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
                 | primary ;
-call           → primary ("(" arguments? ")")*;
+call           → primary ("(" arguments? ")" | "." IDENTIFIER)*;
 arguments      → expression ( "," expression)*;
 parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 primary        → "true"
@@ -374,6 +375,8 @@ public class Parser
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
+            } else if (expr instanceof Expr.Get get) {
+                return new Expr.Set(get.object, get.name, value);
             }
 
             throw error(equals, "Invalid assignment target.");
@@ -476,6 +479,10 @@ public class Parser
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
+            }
+            else if (match(DOT)) {
+                Token name = consume(IDENTIFIER, "Expect property name after '.'.");
+                expr = new Expr.Get(expr, name);
             }
             else {
                 break;

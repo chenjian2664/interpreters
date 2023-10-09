@@ -24,7 +24,13 @@ public class AstPrinter
     @Override
     public String visitCallExpr(Expr.Call expr)
     {
-        return null;
+        return parenthesize(expr.paren.lexeme, (Expr[]) expr.arguments.toArray());
+    }
+
+    @Override
+    public String visitGetExpr(Expr.Get expr)
+    {
+        return parenthesize(expr.name.lexeme, expr.object);
     }
 
     @Override

@@ -22,6 +22,12 @@ public class RpnPrinter
     }
 
     @Override
+    public String visitGetExpr(Expr.Get expr)
+    {
+        return null;
+    }
+
+    @Override
     public String visitGroupingExpr(Expr.Grouping expr)
     {
         return null;

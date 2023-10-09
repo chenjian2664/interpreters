@@ -1,7 +1,11 @@
 package org.example.lox;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LoxInstance
 {
+    private final Map<String, Object> fields = new HashMap<>();
     private LoxClass klass;
 
     LoxInstance(LoxClass klass)
@@ -13,5 +17,19 @@ public class LoxInstance
     public String toString()
     {
         return klass.name + " instance";
+    }
+
+    Object get(Token name)
+    {
+        if (fields.containsKey(name.lexeme)) {
+            return fields.get(name.lexeme);
+        }
+
+        throw new Interpreter.RuntimeError(name, "Undefined property %s .".formatted(name.lexeme));
+    }
+
+    void set(Token name, Object value)
+    {
+        fields.put(name.lexeme, value);
     }
 }
