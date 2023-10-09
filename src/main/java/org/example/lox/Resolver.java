@@ -13,7 +13,8 @@ public class Resolver
     private enum FunctionType
     {
         NONE,
-        FUNCTION
+        FUNCTION,
+        METHOD
     }
 
     private final Interpreter interpreter;
@@ -126,6 +127,12 @@ public class Resolver
     {
         declare(stmt.name);
         define(stmt.name);
+
+        for (Stmt.Function method : stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            resolveFunction(method, declaration);
+        }
+
         return null;
     }
 
