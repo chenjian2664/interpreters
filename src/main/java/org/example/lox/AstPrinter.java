@@ -61,6 +61,12 @@ public class AstPrinter
     }
 
     @Override
+    public String visitSuperExpr(Expr.Super expr)
+    {
+        return parenthesize(expr.keyword.lexeme);
+    }
+
+    @Override
     public String visitThisExpr(Expr.This expr)
     {
         return parenthesize(expr.keyword.lexeme);

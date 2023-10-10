@@ -16,6 +16,12 @@ public class Lox
     static boolean hadRuntimeError = false;
     static boolean hadError = false;
 
+    private static int fb(int n)
+    {
+        if (n < 2) return n;
+        return fb(n - 1) + fb(n - 2);
+    }
+
     public static void main(String[] args)
             throws IOException
     {
@@ -29,6 +35,13 @@ public class Lox
         else {
             runPrompt();
         }
+
+//        long before = System.currentTimeMillis();
+//        System.out.println(fb(40));
+//        long after = System.currentTimeMillis();
+//        System.out.println(after - before);
+//        runFile("fb.lox");
+
     }
 
     private static void runFile(String path)
@@ -81,8 +94,6 @@ public class Lox
         }
 
         interpreter.interpret(stmts);
-
-//        System.out.println(new AstPrinter().print(expression));
     }
 
     static void error(int line, String message)

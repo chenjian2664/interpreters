@@ -180,9 +180,8 @@ public class Parser
             return statement();
         }
         catch (ParseError error) {
-//            sychronize();
+            throw new Interpreter.RuntimeError(previous(), error.getMessage() + "; Parser error");
         }
-        return null;
     }
 
     private Stmt classDeclaration()
@@ -339,7 +338,7 @@ public class Parser
     {
         consume(LEFT_PAREN, "Expect '(' after 'if'");
         Expr condition = expression();
-        consume(RIGHT_BRACE, "Expect ')' after if condition");
+        consume(RIGHT_PAREN, "Expect ')' after if condition");
 
         Stmt thenBranch = statement();
         Stmt elseBranch = null;

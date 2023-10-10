@@ -21,7 +21,7 @@ public class Interpreter
             @Override
             public Object call(Interpreter interpreter, List<Object> arguments)
             {
-                return System.currentTimeMillis() / 1000;
+                return (double) System.currentTimeMillis() / 1000.0;
             }
 
             @Override
@@ -184,7 +184,7 @@ public class Interpreter
             return;
         }
 
-        throw new RuntimeError(operator, "Operands must be numbers.");
+        throw new RuntimeError(operator, "Operands must be numbers. %s, %s".formatted(left, right));
     }
 
     private boolean isEqual(Object a, Object b)
