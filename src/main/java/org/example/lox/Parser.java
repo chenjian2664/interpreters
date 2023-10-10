@@ -38,6 +38,7 @@ import static org.example.lox.TokenType.SEMICOLON;
 import static org.example.lox.TokenType.SLASH;
 import static org.example.lox.TokenType.STAR;
 import static org.example.lox.TokenType.STRING;
+import static org.example.lox.TokenType.SUPER;
 import static org.example.lox.TokenType.THIS;
 import static org.example.lox.TokenType.TRUE;
 import static org.example.lox.TokenType.VAR;
@@ -89,8 +90,12 @@ parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 primary        → "true"
                    | "false"
                    | "nil"
+                   | "this"
+                   | NUMBER
+                   | STRING
                    | "(" expression ")"
-                   | IDENTIFIER;
+                   | IDENTIFIER
+                   | "super" "." IDENTIFIER;
 */
 
 public class Parser
@@ -545,6 +550,14 @@ public class Parser
 
         if (match(THIS)) {
             return new Expr.This(previous());
+        }
+
+        if (match(SUPER)) {
+            Token keyword = previous();
+            consume(DOT, "Expect dot after 'super' keyword");
+
+            Token method = consume(IDENTIFIER, "Expect identifier after super call");
+            return new Expr.Super(keyword, method);
         }
 
         if (match(IDENTIFIER)) {
