@@ -8,10 +8,13 @@ public class LoxFunction
     private final Stmt.Function declaration;
     private final Environment closure;
 
-    LoxFunction(Stmt.Function declaration, Environment closure)
+    private final boolean isInitializer;
+
+    LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer)
     {
         this.declaration = declaration;
         this.closure = closure;
+        this.isInitializer = isInitializer;
     }
 
     @Override
@@ -33,8 +36,16 @@ public class LoxFunction
             interpreter.executeBlock(declaration.body, environment);
         }
         catch (Return returnValue) {
+            if (isInitializer) {
+                return closure.getAt(0, "this");
+            }
             return returnValue.value;
         }
+
+        if (isInitializer) {
+            return closure.getAt(0, "this");
+        }
+
         return null;
     }
 
@@ -42,6 +53,6 @@ public class LoxFunction
     {
         Environment environment = new Environment(closure);
         environment.define("this", instance);
-        return new LoxFunction(declaration, environment);
+        return new LoxFunction(declaration, environment, isInitializer);
     }
 }

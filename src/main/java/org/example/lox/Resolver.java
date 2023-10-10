@@ -14,6 +14,7 @@ public class Resolver
     {
         NONE,
         FUNCTION,
+        INITIALIZER,
         METHOD
     }
 
@@ -155,6 +156,9 @@ public class Resolver
 
         for (Stmt.Function method : stmt.methods) {
             FunctionType declaration = FunctionType.METHOD;
+            if (method.name.lexeme.equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
             resolveFunction(method, declaration);
         }
 
@@ -218,6 +222,9 @@ public class Resolver
             resolve(stmt.value);
         }
 
+        if (currentFunction == FunctionType.INITIALIZER) {
+            Lox.error(stmt.keyword, "Can't return a value from an initializer.");
+        }
         return null;
     }
 
