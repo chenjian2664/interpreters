@@ -35,10 +35,6 @@ public class LoxClass
 
     LoxFunction findMethod(String name)
     {
-        if (methods.containsKey(name)) {
-            return methods.get(name);
-        }
-
-        return null;
+        return methods.get(name);
     }
 }

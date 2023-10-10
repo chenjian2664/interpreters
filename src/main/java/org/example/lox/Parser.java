@@ -38,6 +38,7 @@ import static org.example.lox.TokenType.SEMICOLON;
 import static org.example.lox.TokenType.SLASH;
 import static org.example.lox.TokenType.STAR;
 import static org.example.lox.TokenType.STRING;
+import static org.example.lox.TokenType.THIS;
 import static org.example.lox.TokenType.TRUE;
 import static org.example.lox.TokenType.VAR;
 import static org.example.lox.TokenType.WHILE;
@@ -534,6 +535,10 @@ public class Parser
 
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
+        }
+
+        if (match(THIS)) {
+            return new Expr.This(previous());
         }
 
         if (match(IDENTIFIER)) {

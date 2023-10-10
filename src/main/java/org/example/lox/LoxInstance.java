@@ -27,11 +27,12 @@ public class LoxInstance
 
         LoxFunction method = klass.findMethod(name.lexeme);
         if (method != null) {
-            return method;
+            return method.bind(this);
         }
 
         throw new Interpreter.RuntimeError(name, "Undefined property %s .".formatted(name.lexeme));
     }
+
 
     void set(Token name, Object value)
     {

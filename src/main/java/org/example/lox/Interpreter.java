@@ -148,6 +148,12 @@ public class Interpreter
         return value;
     }
 
+    @Override
+    public Object visitThisExpr(Expr.This expr)
+    {
+        return lookUpVariable(expr.keyword, expr);
+    }
+
     private void checkNumberOperand(Token operator, Object operand)
     {
         if (operand instanceof Double) {
