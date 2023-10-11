@@ -54,11 +54,17 @@ public class Environment
                 "Undefined variable '" + name.lexeme + "'.");
     }
 
+    /**
+     * Find the variable that 'resolved' by the resolver
+     */
     Object getAt(int distance, String name)
     {
         return ancestor(distance).values.get(name);
     }
 
+    /**
+     * Assign the variable to the specific environment
+     */
     void assignAt(int distance, Token name, Object value)
     {
         ancestor(distance).values.put(name.lexeme, value);

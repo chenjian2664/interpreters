@@ -116,8 +116,7 @@ public class Parser
         Expr expr = expression();
 
         while (match(COMMA)) {
-            Expr right = expression();
-            expr = right;
+            expr = expression();
         }
         return expr;
     }
@@ -386,7 +385,8 @@ public class Parser
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
-            } else if (expr instanceof Expr.Get get) {
+            }
+            else if (expr instanceof Expr.Get get) {
                 return new Expr.Set(get.object, get.name, value);
             }
 
@@ -598,11 +598,14 @@ public class Parser
         return new ParseError();
     }
 
-    private void synchronize() {
+    private void synchronize()
+    {
         advance();
 
         while (!isAtEnd()) {
-            if (previous().type == SEMICOLON) return;
+            if (previous().type == SEMICOLON) {
+                return;
+            }
 
             switch (peek().type) {
                 case CLASS:

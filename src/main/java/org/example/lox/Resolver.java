@@ -272,7 +272,7 @@ public class Resolver
     // ================= Helper
     private void beginScope()
     {
-        scopes.push(new HashMap<String, Boolean>());
+        scopes.push(new HashMap<>());
     }
 
     private void endScope()
@@ -318,6 +318,9 @@ public class Resolver
         scopes.peek().put(name.lexeme, true);
     }
 
+    /**
+     * Actual logic that bind the variable to the specific environment
+     */
     private void resolveLocal(Expr expr, Token name)
     {
         for (int i = scopes.size() - 1; i >= 0; i--) {
