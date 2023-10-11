@@ -10,6 +10,7 @@ public class GenerateAst
     public static void main(String[] args)
             throws IOException
     {
+        // Path: {the absolute path}/interpreters/src/main/java/org/example/lox
         if (args.length != 1) {
             System.err.println("Usage: generate_ast <output directory>");
             System.exit(64);
