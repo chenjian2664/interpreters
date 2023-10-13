@@ -3,6 +3,7 @@
 #include "common.h"
 #include "vm.h"
 #include "debug.h"
+#include "compiler.h"
 
 VM vm;
 
@@ -14,6 +15,11 @@ void initVM() {
 }
 
 void freeVM() {
+}
+
+InterpretResult interpret(const char* source) {
+    compile(source);
+    return INTERPRET_OK;
 }
 
 InterpretResult interpret(Chunk* chunk) {
