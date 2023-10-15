@@ -30,6 +30,8 @@ typedef double Value;
 #define IS_NIL(value)     ((value).type == VAL_NIL)
 #define IS_NUMBER(value)  ((value).type == VAL_NUMBER)
 
+bool valuesEqual(Value a, Value b);
+
 typedef struct {
     int capacity;
     int count;
