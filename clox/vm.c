@@ -17,9 +17,11 @@ static void resetStack();
 
 void initVM() {
     resetStack();
+    Obj* objects;
 }
 
 void freeVM() {
+    freeObjects();
 }
 
 InterpretResult interpret(const char* source) {
