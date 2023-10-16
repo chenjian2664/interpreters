@@ -170,6 +170,10 @@ static void number() {
     emitConstant(NUMBER_VAL(value));
 }
 
+static void string() {
+    emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
+}
+
 static void grouping() {
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
