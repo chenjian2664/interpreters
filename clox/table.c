@@ -24,10 +24,12 @@ static Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
     uint32_t index = key->hash % capacity;
     for (;;) {
         Entry* entry = &entries[index];
+        // until meet the same key or the empty entry
         if (entry->key == key || entry->key == NULL) {
             return entry;
         }
 
+        // consider the array as a ring
         index = (index + 1) % capacity;
     }
 }
@@ -77,4 +79,14 @@ void tableAddAll(Table* from, Table* to) {
             tableSet(to, entry->key, entry->value);
         }
     }
+}
+
+bool tableGet(Table* table, ObjString* key, Value* value) {
+    if (table->count == 0) return false;
+
+    Entry* entry = findEntry(table->entries, table->capacity, key);
+    if (entry->key == NULL) return false;
+
+    *value = entry->value;
+    return true;
 }
